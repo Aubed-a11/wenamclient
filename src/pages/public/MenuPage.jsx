@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import { Clock, Search, ShoppingCart, Star, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -11,9 +11,11 @@ const CATEGORIES = [
   { key: '', label: 'Tous' },
   { key: 'entrees', label: 'Entrées' },
   { key: 'plats_principaux', label: 'Plats Principaux' },
+  { key: 'grillades', label: 'Grillades' },
+  { key: 'accompagnements', label: 'Accompagnements' },
   { key: 'desserts', label: 'Desserts' },
   { key: 'boissons', label: 'Boissons' },
-  { key: 'accompagnements', label: 'Accompagnements' },
+  { key: 'autres', label: 'Autres' },
 ]
 
 function SkeletonCard() {
