@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { ProtectedRoute, AdminRoute, PublicOnlyRoute, AdminPublicRoute } from './routes/guards'
+import InstallPrompt from './components/common/InstallPrompt'
 
 import HomePage from './pages/public/HomePage'
 import MenuPage from './pages/public/MenuPage'
@@ -67,6 +68,7 @@ export default function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <InstallPrompt />
     </BrowserRouter>
   )
 }
