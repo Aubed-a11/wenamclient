@@ -90,7 +90,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) return
-    const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000', { withCredentials: true })
+    const socket = io(import.meta.env.VITE_SOCKET_URL || 'https://api.wenamfood.com', { withCredentials: true })
     socket.emit('join_admin')
     socket.on('order:new', ({ order }) => { setNewOrder(order); fetchOrders() })
     return () => socket.disconnect()

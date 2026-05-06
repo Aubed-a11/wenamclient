@@ -27,7 +27,7 @@ export default function OrderTrackingPage() {
 
   useEffect(() => {
     if (!user) return
-    const socket = io(import.meta.env.VITE_SOCKET_URL || '', { withCredentials: true })
+    const socket = io(import.meta.env.VITE_SOCKET_URL || 'https://api.wenamfood.com', { withCredentials: true })
     socket.emit('join_room', user._id)
     socket.on('order:status_updated', (payload) => {
       if (String(payload.orderId) === String(id)) {
