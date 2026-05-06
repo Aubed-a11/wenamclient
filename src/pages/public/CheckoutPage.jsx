@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion'
+﻿import { AnimatePresence, motion } from 'framer-motion'
 import { Banknote, Building2, CheckCircle, ChevronRight, CreditCard, Copy, Download, Lock, MapPin, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
@@ -261,14 +261,14 @@ function generateOrderPDF(order, user) {
     </tr>`
   ).join('')
 
-  const logoUrl = `${window.location.origin}/wenam-logo.png`
+  const logoUrl = `${window.location.origin}/images/wenam-logo.png`
 
   const html = `<!DOCTYPE html>
 <html lang="fr"><head><meta charset="UTF-8"/>
 <style>
   body{font-family:'Georgia',serif;color:#1A0F00;margin:0;padding:40px;background:#fff;}
   .header{text-align:center;border-bottom:3px solid #C4531A;padding-bottom:24px;margin-bottom:32px;}
-  .logo-img{width:90px;height:auto;margin-bottom:10px;}
+  .logo-img{width:110px;height:auto;margin:0 auto 12px;display:block;mix-blend-mode:multiply;}
   .brand{font-size:36px;font-weight:700;color:#C4531A;margin:0;font-family:'Georgia',serif;}
   .sub{font-size:13px;color:#8B6B3D;letter-spacing:3px;text-transform:uppercase;margin-top:4px;}
   .order-num{font-size:22px;font-weight:700;color:#8B3A0F;margin:16px 0 4px;}
@@ -586,7 +586,7 @@ export default function CheckoutPage() {
                 <CheckCircle size={36} color="#16a34a" />
               </motion.div>
 
-              <img src="wenam-logo.png" alt="Wênam" style={{ width:60, margin:'0 auto 8px', display:'block' }} />
+              <img src="/images/wenam-logo.png" alt="Wenam" style={{ width:80, margin:'0 auto 12px', display:'block', mixBlendMode:'multiply' }} />
 
               <h2 className="font-display confirm-title" style={{ fontWeight:700, marginBottom:8 }}>Commande confirmée !</h2>
               <p className="font-display confirm-order-num" style={{ color:'#C4531A', fontWeight:700, marginBottom:6 }}>{order.orderNumber}</p>
