@@ -99,9 +99,14 @@ export default function LoginPage() {
 
             {/* Mot de passe */}
             <div>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#8B6B3D', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Mot de passe
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#8B6B3D', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Mot de passe
+                </label>
+                <Link to="/forgot-password" style={{ fontSize: 11, color: '#C4531A', fontWeight: 600, textDecoration: 'none' }}>
+                  Mot de passe oublié ?
+                </Link>
+              </div>
               <div style={{ position: 'relative' }}>
                 <Lock size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#8B6B3D' }} />
                 <input
