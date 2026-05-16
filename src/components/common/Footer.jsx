@@ -8,7 +8,10 @@ export default function Footer() {
     <footer className="bg-primary-dark text-cream pt-12 pb-6">
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
-          <h3 className="font-display text-2xl text-white mb-1">Wênam</h3>
+          <div className="flex items-center gap-2 mb-1">
+            <img src="/images/wenam-logo.png" alt="Wênam" style={{ width: 36, height: 36, objectFit: 'contain', mixBlendMode: 'screen' }} />
+            <h3 className="font-display text-2xl text-white">Wênam</h3>
+          </div>
           <p className="text-cream/50 text-xs font-body tracking-widest uppercase mb-3">Avenue Al Majd 2, Rabat</p>
           <p className="text-cream/70 text-sm leading-relaxed mb-4">Cuisine africaine façon Bénin : du cœur à l’assiette</p>
           <div className="flex gap-3">
