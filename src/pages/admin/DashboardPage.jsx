@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { TrendingUp, ShoppingBag, Package, Star, Eye, Bell, X, CheckCircle, ExternalLink } from 'lucide-react'
+import { TrendingUp, ShoppingBag, Package, Star, Eye, Bell, X, CheckCircle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { io } from 'socket.io-client'
 import api from '../../api/axios'
@@ -19,14 +19,10 @@ const css = `
   @media (max-width: 900px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 480px) { .stat-grid { grid-template-columns: 1fr 1fr; gap: 12px; } }
   .stat-val { font-size: 36px; }
-  @media (max-width: 480px) { .stat-val { font-size: 24px; } }
-  @media (max-width: 360px) { .stat-val { font-size: 20px; } .stat-grid { gap: 8px !important; } }
+  @media (max-width: 480px) { .stat-val { font-size: 26px; } }
   .new-order-banner { width: 300px; }
   @media (max-width: 480px) { .new-order-banner { width: calc(100vw - 32px); right: 16px !important; } }
-  .visit-btn:hover { background: #A33D12 !important; transform: translateY(-1px); }
-  .visit-btn { transition: all 0.2s; flex-shrink: 0; }
-  .visit-btn-label::before { content: 'Voir le site Wênam'; }
-  @media (max-width: 480px) { .visit-btn-label::before { content: 'Site'; } }
+
 `
 
 function StatCard({ label, value, icon: Icon, bg, i }) {
@@ -83,19 +79,12 @@ export default function DashboardPage() {
   const fetchOrders = () => api.get('/orders?limit=8').then(({ data }) => setOrders(data.orders || [])).catch(() => {})
 
   useEffect(() => {
-    Promise.allSettled([
-      api.get('/analytics/summary'),
-      api.get('/orders?limit=8'),
-      api.get('/reviews/admin?limit=3'),
-      api.get('/analytics/weekly-sales'),
-    ]).then(([statsRes, ordersRes, reviewsRes, salesRes]) => {
-      if (statsRes.status === 'fulfilled') setStats(statsRes.value.data)
-      if (ordersRes.status === 'fulfilled') setOrders(ordersRes.value.data.orders || [])
-      if (reviewsRes.status === 'fulfilled') setReviews(reviewsRes.value.data.reviews || [])
-      if (salesRes.status === 'fulfilled') {
-        setSales((salesRes.value.data.data || []).map((d, i) => ({ day: ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'][i], total: d.total })))
-      }
-    })
+    api.get('/analytics/summary').then(({ data }) => setStats(data)).catch(() => {})
+    fetchOrders()
+    api.get('/reviews/admin?limit=3').then(({ data }) => setReviews(data.reviews || [])).catch(() => {})
+    api.get('/analytics/weekly-sales').then(({ data }) => {
+      setSales((data.data || []).map((d, i) => ({ day: ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'][i], total: d.total })))
+    }).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -125,21 +114,12 @@ export default function DashboardPage() {
     <div style={{ fontFamily: 'Lato, sans-serif' }}>
       <style>{css}</style>
 
-      {/* Header avec bouton retour site */}
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24, flexWrap:'wrap', gap:10, rowGap:12 }}>
-        <div>
-          <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(20px,4vw,28px)', fontWeight:700, color:'#1A0F00', margin:'0 0 4px' }}>
-            Bienvenue, {user?.name?.split(' ')[0]} 
-          </h1>
-          <p style={{ color:'#8B6B3D', fontSize:14, margin:0 }}>Activité récente</p>
-        </div>
-
-        {/* Bouton retour site */}
-        <a href="/" target="_blank" rel="noopener noreferrer" className="visit-btn"
-          style={{ display:'flex', alignItems:'center', gap:8, background:'#C4531A', color:'#fff', padding:'8px 12px', borderRadius:10, textDecoration:'none', fontWeight:700, fontSize:12, fontFamily:'Lato,sans-serif', boxShadow:'0 2px 8px rgba(196,83,26,0.3)' }}>
-          <ExternalLink size={15} />
-          <span className="visit-btn-label">Voir le site</span>
-        </a>
+      {/* Header */}
+      <div style={{ marginBottom:24 }}>
+        <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(20px,4vw,28px)', fontWeight:700, color:'#1A0F00', margin:'0 0 4px' }}>
+          Bienvenue, {user?.name?.split(' ')[0]} 👋
+        </h1>
+        <p style={{ color:'#8B6B3D', fontSize:14, margin:0 }}>Activité récente · Avenue Al Majd 2, Rabat</p>
       </div>
 
       {/* Stats */}
@@ -155,7 +135,7 @@ export default function DashboardPage() {
             <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:17, fontWeight:600, color:'#1A0F00', margin:0 }}>Commandes Récentes</h2>
             <Link to="/admin/orders" style={{ fontSize:12, color:'#C4531A', textDecoration:'none', fontWeight:600 }}>Voir tout →</Link>
           </div>
-          <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
+          <div style={{ overflowX:'auto' }}>
             <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
               <thead>
                 <tr style={{ borderBottom:'1px solid #EDE0C4' }}>

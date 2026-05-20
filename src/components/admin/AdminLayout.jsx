@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, ShoppingBag, UtensilsCrossed, Image,
-  Star, Users, Settings, LogOut, Menu, X, ChevronRight
+  Star, Users, Settings, LogOut, Menu, X, ChevronRight, ExternalLink
 } from 'lucide-react'
 import { useAuthStore } from '../../store'
 
@@ -42,11 +42,7 @@ const css = `
     .admin-sidebar.open { transform: translateX(0); }
     .admin-main { margin-left: 0; }
     .menu-toggle { display: flex; align-items: center; justify-content: center; }
-    .admin-content { padding: 16px 12px 32px; }
-  }
-  @media (max-width: 380px) {
-    .admin-content { padding: 12px 10px 28px; }
-    .admin-topbar { padding: 0 12px; }
+    .admin-content { padding: 20px 16px; }
   }
 `
 
@@ -133,7 +129,12 @@ export default function AdminLayout() {
               {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
             <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: '#1A0F00', margin: 0, flex: 1 }}>{currentPage}</h1>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(196,83,26,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#C4531A', fontWeight: 700, fontSize: 13 }}>
+            <a href="/" target="_blank" rel="noopener noreferrer"
+              style={{ display:'flex', alignItems:'center', gap:6, background:'#C4531A', color:'#fff', padding:'7px 14px', borderRadius:8, textDecoration:'none', fontWeight:700, fontSize:12, fontFamily:'Lato,sans-serif', flexShrink:0 }}>
+              <ExternalLink size={13} />
+              Voir le site
+            </a>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(196,83,26,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#C4531A', fontWeight: 700, fontSize: 13, flexShrink:0 }}>
               {user?.name?.[0]}
             </div>
           </div>

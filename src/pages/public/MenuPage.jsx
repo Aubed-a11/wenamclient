@@ -69,8 +69,8 @@ export default function MenuPage() {
 
       {/* Hero */}
       <div className="bg-primary py-8 sm:py-12">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4">
-          <h1 className="font-display text-2xl sm:text-4xl font-bold text-white mb-1">Notre Menu</h1>
+        <div className="max-w-7xl mx-auto px-4">
+          <h1 className="font-display text-3xl sm:text-4xl font-bold text-white mb-1">Notre Menu</h1>
           <p className="text-white/70 font-body text-sm sm:text-base">Découvrez nos {total} plats préparés avec passion</p>
         </div>
       </div>
@@ -104,11 +104,11 @@ export default function MenuPage() {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))" }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {loading ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />) : (
             items.length === 0 ? (
               <div className="col-span-full text-center py-20">
-                <div className="text-6xl mb-4"></div>
+                <div className="text-6xl mb-4">🍽️</div>
                 <p className="font-display text-xl text-text-dark mb-2">Aucun plat trouvé</p>
                 <p className="text-text-light text-sm font-body">Essayez d'autres filtres</p>
               </div>
@@ -130,7 +130,7 @@ export default function MenuPage() {
                   </div>
                   <div className="p-3 sm:p-4">
                     <h3 className="font-display font-semibold text-text-dark text-base mb-1 line-clamp-1">{item.name}</h3>
-                    <p className="text-text-light text-xs font-body mb-3 leading-relaxed" title={item.description} style={{ display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden', minHeight:'2.8em' }}>{item.description}</p>
+                    <p className="text-text-light text-xs font-body mb-3 leading-relaxed">{item.description}</p>
                     <div className="flex items-center gap-3 mb-3 text-xs text-text-light">
                       <span className="flex items-center gap-1"><Star size={11} className="text-amber-400 fill-amber-400" />{item.rating} ({item.reviewCount})</span>
                       <span className="flex items-center gap-1"><Clock size={11} />{item.preparationTime} min</span>

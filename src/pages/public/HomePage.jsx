@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 import api from '../../api/axios'
 import Footer from '../../components/common/Footer'
 import Navbar from '../../components/common/Navbar'
-import { useAuthStore } from '../../store'
 
 const OPENING_PHOTOS = [
   '/images/opening1.jpeg',
@@ -26,7 +25,7 @@ const CATEGORIES = [
 ]
 
 const REVIEWS = [
-  { name: 'Astrid', rating: 5, text: "Cuisine raffinée, service impeccable. Better food, better mood, c'est tellement vrai !", city: 'Rabat' },
+  { name: 'Astrid', rating: 5, text: "Cuisine raffinée, service impeccable. Better food, better mood — c'est tellement vrai !", city: 'Rabat' },
   { name: 'Divine', rating: 5, text: 'Les plats sont délicieux et la livraison super rapide. Je recommande vivement !', city: 'Rabat' },
   { name: 'Nelie', rating: 4, text: "Excellente qualité, présentation soignée. Wênam c'est une vraie découverte.", city: 'Rabat' },
 ]
@@ -37,40 +36,31 @@ const css = `
   .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
   .hero-h1 { font-size: 52px; }
   .promo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-  .hero-video-wrap { width: 100%; max-width: 340px; border-radius: 20px; overflow: hidden; border: 4px solid #EDE0C4; box-shadow: 0 8px 32px rgba(139,58,15,0.15); aspect-ratio: 9/16; }
-  .hero-video-col { display: flex; justify-content: center; }
+  .hero-video-wrap { width: 100%; max-width: 340px; border-radius: 20px; overflow: hidden; border: 4px solid #EDE0C4; box-shadow: 0 8px 32px rgba(139,58,15,0.15); aspect-ratio: 9/16; position: relative; }
   @media (max-width: 768px) {
     .hero-grid { grid-template-columns: 1fr; gap: 28px; }
     .hero-h1 { font-size: clamp(28px, 7vw, 42px); }
-    .hero-video-wrap { max-width: 220px; }
+    .hero-video-wrap { max-width: 260px; }
     .promo-grid { grid-template-columns: 1fr; gap: 24px; }
-    .hero-ctas { flex-direction: row; flex-wrap: wrap; }
+    .hero-ctas { flex-direction: column; }
     .hero-stats { gap: 16px !important; }
   }
-  @media (max-width: 480px) {
-    .hero-h1 { font-size: 26px; }
-    .hero-video-col { display: none; }
-  }
+  @media (max-width: 480px) { .hero-h1 { font-size: 26px; } }
 `
 
 export default function HomePage() {
-  const user = useAuthStore((s) => s.user)
   const [featured, setFeatured] = useState([])
   const [promo, setPromo] = useState(null)
   const [openingIdx, setOpeningIdx] = useState(0)
   const [ordersCount, setOrdersCount] = useState(100)
 
   useEffect(() => {
-    // Grouper les 3 appels en parallèle pour réduire la charge
-    Promise.allSettled([
-      api.get('/menu?featured=true&limit=6'),
-      api.get('/settings/public/promo'),
-      api.get('/settings/public/orders-count'),
-    ]).then(([featuredRes, promoRes, countRes]) => {
-      if (featuredRes.status === 'fulfilled') setFeatured(featuredRes.value.data.items || [])
-      if (promoRes.status === 'fulfilled') setPromo(promoRes.value.data.promo)
-      if (countRes.status === 'fulfilled' && countRes.value.data.count) setOrdersCount(countRes.value.data.count)
-    })
+    api.get('/menu?featured=true&limit=6').then(({ data }) => setFeatured(data.items || [])).catch(() => {})
+    api.get('/settings/public/promo').then(({ data }) => setPromo(data.promo)).catch(() => {})
+    // Fetch le compteur de plats servis
+    api.get('/settings/public/orders-count')
+      .then(({ data }) => { if (data.count) setOrdersCount(data.count) })
+      .catch(() => {})
     const t = setInterval(() => setOpeningIdx(i => (i + 1) % OPENING_PHOTOS.length), 3200)
     return () => clearInterval(t)
   }, [])
@@ -81,8 +71,8 @@ export default function HomePage() {
       <Navbar />
 
       {/* INFO BAR */}
-      <div style={{ background: '#8B3A0F', color: '#fff', fontSize: 12, padding: '8px 16px', overflowX: 'hidden' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '4px 16px' }}>
+      <div style={{ background: '#8B3A0F', color: '#fff', fontSize: 12, padding: '8px 16px' }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '6px 24px' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><Clock size={11} /> Ouvert 09h · Livraisons jusqu'à 20h</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><MapPin size={11} /> Avenue Al Majd 2, Rabat</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><Calendar size={11} /> Commandes 24h à l'avance</span>
@@ -94,7 +84,7 @@ export default function HomePage() {
       </div>
 
       {/* HERO */}
-      <section style={{ background: '#FAF3E8', minHeight: 'clamp(380px,60vh,580px)', display: 'flex', alignItems: 'center', overflow: 'hidden', position: 'relative' }}>
+      <section style={{ background: '#FAF3E8', minHeight: 580, display: 'flex', alignItems: 'center', overflow: 'hidden', position: 'relative' }}>
         <div style={{ position: 'absolute', top: 40, left: 40, width: 120, height: 120, borderRadius: '50%', background: 'rgba(196,83,26,0.05)' }} />
         <div style={{ position: 'absolute', bottom: 40, right: '30%', width: 180, height: 180, borderRadius: '50%', background: 'rgba(196,83,26,0.04)' }} />
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '48px 20px', width: '100%' }}>
@@ -109,11 +99,9 @@ export default function HomePage() {
                 <Link to="/menu" style={{ background: '#C4531A', color: '#fff', padding: '13px 28px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 13, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                   Voir le Menu
                 </Link>
-                {!user && (
-                  <Link to="/register" style={{ border: '2px solid #C4531A', color: '#C4531A', padding: '11px 24px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 13, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                    Créer un compte
-                  </Link>
-                )}
+                <Link to="/register" style={{ border: '2px solid #C4531A', color: '#C4531A', padding: '11px 24px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 13, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                  Créer un compte
+                </Link>
               </div>
               <div className="hero-stats" style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
                 {[
@@ -131,7 +119,7 @@ export default function HomePage() {
 
             {/* Vidéo hero format portrait */}
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7, delay: 0.2 }}
-              className="hero-video-col">
+              style={{ display: 'flex', justifyContent: 'center' }}>
               <div className="hero-video-wrap">
                 <video
                   src="/videos/hero-wenam.mp4"
@@ -139,7 +127,8 @@ export default function HomePage() {
                   muted
                   loop
                   playsInline
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  preload="auto"
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
             </motion.div>
@@ -148,11 +137,11 @@ export default function HomePage() {
       </section>
 
       {/* CATEGORIES */}
-      <section style={{ background: '#F5ECD7', padding: 'clamp(40px,8vw,72px) clamp(14px,4vw,20px)' }}>
+      <section style={{ background: '#F5ECD7', padding: '72px 20px' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <motion.h2 variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }}
             style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(22px,4vw,32px)', fontWeight: 600, color: '#1A0F00', marginBottom: 32 }}>
-            Explorez Notre Menu
+            Explorez Notre Menu —
           </motion.h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16 }}>
             {CATEGORIES.map((cat, i) => (
@@ -177,7 +166,7 @@ export default function HomePage() {
 
       {/* PROMO */}
       {promo?.active && (
-        <section style={{ background: '#C4531A', padding: 'clamp(36px,7vw,64px) clamp(14px,4vw,20px)', position: 'relative', overflow: 'hidden' }}>
+        <section style={{ background: '#C4531A', padding: '64px 20px', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', inset: 0, opacity: 0.08, backgroundImage: 'repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%)', backgroundSize: '20px 20px' }} />
           <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative', zIndex: 1 }}>
             <div className="promo-grid">
@@ -205,9 +194,9 @@ export default function HomePage() {
 
       {/* FEATURED DISHES */}
       {featured.length > 0 && (
-        <section style={{ background: '#FAF3E8', padding: 'clamp(40px,8vw,72px) clamp(14px,4vw,20px)' }}>
+        <section style={{ background: '#FAF3E8', padding: '72px 20px' }}>
           <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(22px,4vw,32px)', fontWeight: 600, color: '#1A0F00', marginBottom: 'clamp(18px,4vw,32px)' }}>Nos Spécialités</h2>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(22px,4vw,32px)', fontWeight: 600, color: '#1A0F00', marginBottom: 32 }}>Nos Spécialités —</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
               {featured.map((item, i) => (
                 <motion.div key={item._id} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} transition={{ delay: i * 0.07 }}
@@ -220,9 +209,9 @@ export default function HomePage() {
                   </div>
                   <div style={{ padding: 16 }}>
                     <h3 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 600, fontSize: 16, color: '#1A0F00', margin: '0 0 6px' }}>{item.name}</h3>
-                    <p title={item.description} style={{ fontSize: 13, color: '#8B6B3D', margin: '0 0 12px', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', minHeight: '3em' }}>{item.description}</p>
+                    <p style={{ fontSize: 13, color: '#8B6B3D', margin: '0 0 12px', lineHeight: 1.5 }}>{item.description}</p>
                     <div style={{ display: 'flex', gap: 12, fontSize: 12, color: '#8B6B3D', marginBottom: 14 }}>
-                      <span>{item.rating} / 5</span>
+                      <span>⭐ {item.rating}</span>
                       <span>⏱ {item.preparationTime} min</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -243,7 +232,7 @@ export default function HomePage() {
       )}
 
       {/* GALERIE */}
-      <section style={{ background: '#1A0F00', padding: 'clamp(40px,8vw,72px) 0', overflow: 'hidden' }}>
+      <section style={{ background: '#1A0F00', padding: '72px 0', overflow: 'hidden' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 20px' }}>
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 40 }}>
             <p style={{ color: '#E8763A', fontSize: 12, fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: 8 }}>Inauguration Officielle</p>
@@ -253,11 +242,11 @@ export default function HomePage() {
         </div>
         <div style={{ position: 'relative' }}>
           <motion.div
-            style={{ display: 'flex', gap: 12, paddingLeft: 16 }}
-            animate={{ x: [`0px`, `-${OPENING_PHOTOS.length * 252}px`] }}
+            style={{ display: 'flex', gap: 16, paddingLeft: 20 }}
+            animate={{ x: [`0px`, `-${OPENING_PHOTOS.length * 296}px`] }}
             transition={{ duration: OPENING_PHOTOS.length * 4, repeat: Infinity, ease: 'linear' }}>
             {[...OPENING_PHOTOS, ...OPENING_PHOTOS].map((photo, i) => (
-              <div key={i} style={{ width: 'clamp(180px,40vw,260px)', height: 'clamp(135px,30vw,195px)', flexShrink: 0, borderRadius: 14, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.08)' }}>
+              <div key={i} style={{ width: 260, height: 195, flexShrink: 0, borderRadius: 14, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.08)' }}>
                 <img src={photo} alt={`Wênam lancement ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             ))}
@@ -272,9 +261,9 @@ export default function HomePage() {
       </section>
 
       {/* INFOS PRATIQUES */}
-      <section style={{ background: '#F5ECD7', padding: 'clamp(36px,7vw,64px) clamp(14px,4vw,20px)' }}>
+      <section style={{ background: '#F5ECD7', padding: '64px 20px' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(22px,4vw,32px)', fontWeight: 600, color: '#1A0F00', marginBottom: 32, textAlign: 'center' }}>Infos Pratiques</h2>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(22px,4vw,32px)', fontWeight: 600, color: '#1A0F00', marginBottom: 32, textAlign: 'center' }}>Infos Pratiques —</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16 }}>
             {[
               { icon: Clock, title: 'Horaires', lines: ['Ouverture: 09h00', 'Arrêt livraisons: 20h00'] },
@@ -296,9 +285,9 @@ export default function HomePage() {
       </section>
 
       {/* REVIEWS */}
-      <section style={{ background: '#FAF3E8', padding: 'clamp(40px,8vw,72px) 20px' }}>
+      <section style={{ background: '#FAF3E8', padding: '72px 20px' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(22px,4vw,32px)', fontWeight: 600, color: '#1A0F00', marginBottom: 'clamp(20px,4vw,32px)' }}>Ce que Disent Nos Clients</h2>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(22px,4vw,32px)', fontWeight: 600, color: '#1A0F00', marginBottom: 32 }}>Ce que Disent Nos Clients —</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
             {REVIEWS.map((r, i) => (
               <motion.div key={i} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} transition={{ delay: i * 0.1 }}
