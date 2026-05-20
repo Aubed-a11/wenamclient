@@ -47,7 +47,11 @@ export default function ProfilePage() {
   const [form, setForm] = useState({ name: user?.name||'', phone: user?.phone||'', street: user?.address?.street||'', city: user?.address?.city||'' })
   const navigate = useNavigate()
 
-  useEffect(() => { if (tab === 'orders') api.get('/orders/my').then(({data})=>setOrders(data.orders||[])) }, [tab])
+  useEffect(() => {
+    if (tab === 'orders' && orders.length === 0) {
+      api.get('/orders/my').then(({data}) => setOrders(data.orders || [])).catch(() => {})
+    }
+  }, [tab])
 
   const handleSave = async () => {
     try {

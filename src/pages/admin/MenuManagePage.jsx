@@ -93,6 +93,8 @@ export default function MenuManagePage() {
   const [items, setItems] = useState([])
   const [cat, setCat] = useState('')
   const [search, setSearch] = useState('')
+  const [searchDebounced, setSearchDebounced] = useState('')
+  const searchTimer = useRef(null)
   const [modal, setModal] = useState(null)
   const [form, setForm] = useState(EMPTY)
   const [saving, setSaving] = useState(false)
@@ -107,10 +109,10 @@ export default function MenuManagePage() {
     setLoading(true)
     const p = new URLSearchParams()
     if (cat) p.set('category', cat)
-    if (search) p.set('search', search)
+    if (searchDebounced) p.set('search', searchDebounced)
     api.get(`/menu?limit=100&${p}`).then(({ data }) => setItems(data.items || [])).finally(() => setLoading(false))
   }
-  useEffect(fetchItems, [cat, search])
+  useEffect(fetchItems, [cat, searchDebounced])
 
   const openAdd = () => { setForm(EMPTY); setPreview(''); setModal('add') }
   const openEdit = (item) => {
@@ -211,7 +213,7 @@ export default function MenuManagePage() {
         ))}
         <div className="search-wrap" style={{ position:'relative', marginLeft:'auto', flexShrink:0 }}>
           <Search size={13} style={{ position:'absolute', left:9, top:'50%', transform:'translateY(-50%)', color:'#8B6B3D' }} />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..."
+          <input value={search} onChange={e => { const v = e.target.value; setSearch(v); clearTimeout(searchTimer.current); searchTimer.current = setTimeout(() => setSearchDebounced(v), 500) }} placeholder="Rechercher..."
             style={{ padding:'7px 12px 7px 30px', border:'1px solid #D4B896', borderRadius:10, fontSize:13, outline:'none', width:'clamp(100px,30vw,160px)' }} />
         </div>
       </div>

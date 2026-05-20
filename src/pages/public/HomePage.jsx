@@ -61,12 +61,16 @@ export default function HomePage() {
   const [ordersCount, setOrdersCount] = useState(100)
 
   useEffect(() => {
-    api.get('/menu?featured=true&limit=6').then(({ data }) => setFeatured(data.items || [])).catch(() => {})
-    api.get('/settings/public/promo').then(({ data }) => setPromo(data.promo)).catch(() => {})
-    // Fetch le compteur de plats servis
-    api.get('/settings/public/orders-count')
-      .then(({ data }) => { if (data.count) setOrdersCount(data.count) })
-      .catch(() => {})
+    // Grouper les 3 appels en parallèle pour réduire la charge
+    Promise.allSettled([
+      api.get('/menu?featured=true&limit=6'),
+      api.get('/settings/public/promo'),
+      api.get('/settings/public/orders-count'),
+    ]).then(([featuredRes, promoRes, countRes]) => {
+      if (featuredRes.status === 'fulfilled') setFeatured(featuredRes.value.data.items || [])
+      if (promoRes.status === 'fulfilled') setPromo(promoRes.value.data.promo)
+      if (countRes.status === 'fulfilled' && countRes.value.data.count) setOrdersCount(countRes.value.data.count)
+    })
     const t = setInterval(() => setOpeningIdx(i => (i + 1) % OPENING_PHOTOS.length), 3200)
     return () => clearInterval(t)
   }, [])

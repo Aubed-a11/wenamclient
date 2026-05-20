@@ -83,12 +83,19 @@ export default function DashboardPage() {
   const fetchOrders = () => api.get('/orders?limit=8').then(({ data }) => setOrders(data.orders || [])).catch(() => {})
 
   useEffect(() => {
-    api.get('/analytics/summary').then(({ data }) => setStats(data)).catch(() => {})
-    fetchOrders()
-    api.get('/reviews/admin?limit=3').then(({ data }) => setReviews(data.reviews || [])).catch(() => {})
-    api.get('/analytics/weekly-sales').then(({ data }) => {
-      setSales((data.data || []).map((d, i) => ({ day: ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'][i], total: d.total })))
-    }).catch(() => {})
+    Promise.allSettled([
+      api.get('/analytics/summary'),
+      api.get('/orders?limit=8'),
+      api.get('/reviews/admin?limit=3'),
+      api.get('/analytics/weekly-sales'),
+    ]).then(([statsRes, ordersRes, reviewsRes, salesRes]) => {
+      if (statsRes.status === 'fulfilled') setStats(statsRes.value.data)
+      if (ordersRes.status === 'fulfilled') setOrders(ordersRes.value.data.orders || [])
+      if (reviewsRes.status === 'fulfilled') setReviews(reviewsRes.value.data.reviews || [])
+      if (salesRes.status === 'fulfilled') {
+        setSales((salesRes.value.data.data || []).map((d, i) => ({ day: ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'][i], total: d.total })))
+      }
+    })
   }, [])
 
   useEffect(() => {
