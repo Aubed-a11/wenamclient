@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { TrendingUp, ShoppingBag, Package, Star, Eye, Bell, X, CheckCircle, ExternalLink } from 'lucide-react'
+import { TrendingUp, ShoppingBag, Package, Star, Eye, Bell, X, CheckCircle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { io } from 'socket.io-client'
 import api from '../../api/axios'
@@ -22,8 +22,7 @@ const css = `
   @media (max-width: 480px) { .stat-val { font-size: 26px; } }
   .new-order-banner { width: 300px; }
   @media (max-width: 480px) { .new-order-banner { width: calc(100vw - 32px); right: 16px !important; } }
-  .visit-btn:hover { background: #A33D12 !important; transform: translateY(-1px); }
-  .visit-btn { transition: all 0.2s; }
+
 `
 
 function StatCard({ label, value, icon: Icon, bg, i }) {
@@ -115,21 +114,12 @@ export default function DashboardPage() {
     <div style={{ fontFamily: 'Lato, sans-serif' }}>
       <style>{css}</style>
 
-      {/* Header avec bouton retour site */}
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24, flexWrap:'wrap', gap:12 }}>
-        <div>
-          <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(20px,4vw,28px)', fontWeight:700, color:'#1A0F00', margin:'0 0 4px' }}>
-            Bienvenue, {user?.name?.split(' ')[0]} 👋
-          </h1>
-          <p style={{ color:'#8B6B3D', fontSize:14, margin:0 }}>Activité récente · Avenue Al Majd 2, Rabat</p>
-        </div>
-
-        {/* Bouton retour site */}
-        <a href="/" target="_blank" rel="noopener noreferrer" className="visit-btn"
-          style={{ display:'flex', alignItems:'center', gap:8, background:'#C4531A', color:'#fff', padding:'10px 18px', borderRadius:10, textDecoration:'none', fontWeight:700, fontSize:13, fontFamily:'Lato,sans-serif', boxShadow:'0 2px 8px rgba(196,83,26,0.3)' }}>
-          <ExternalLink size={15} />
-          Voir le site Wênam
-        </a>
+      {/* Header */}
+      <div style={{ marginBottom:24 }}>
+        <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:'clamp(20px,4vw,28px)', fontWeight:700, color:'#1A0F00', margin:'0 0 4px' }}>
+          Bienvenue, {user?.name?.split(' ')[0]} 👋
+        </h1>
+        <p style={{ color:'#8B6B3D', fontSize:14, margin:0 }}>Activité récente · Avenue Al Majd 2, Rabat</p>
       </div>
 
       {/* Stats */}

@@ -44,7 +44,28 @@ export default function ProfilePage() {
   const [form, setForm] = useState({ name: user?.name||'', phone: user?.phone||'', street: user?.address?.street||'', city: user?.address?.city||'' })
   const navigate = useNavigate()
 
-  useEffect(() => { if (tab === 'orders') api.get('/orders/my').then(({data})=>setOrders(data.orders||[])) }, [tab])
+  const [myReviews, setMyReviews] = useState([])
+  const [reviewForm, setReviewForm] = useState({ rating: 0, comment: '' })
+  const [hoverStar, setHoverStar] = useState(0)
+  const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (tab === 'orders') api.get('/orders/my').then(({data})=>setOrders(data.orders||[]))
+    if (tab === 'reviews') api.get('/reviews/my').then(({data})=>setMyReviews(data.reviews||[])).catch(()=>{})
+  }, [tab])
+
+  const submitReview = async () => {
+    if (reviewForm.rating === 0) { toast.error('Choisissez une note'); return }
+    if (!reviewForm.comment.trim()) { toast.error('Écrivez un commentaire'); return }
+    setSubmitting(true)
+    try {
+      await api.post('/reviews', reviewForm)
+      toast.success('Avis envoyé ! Il sera visible après validation.')
+      setReviewForm({ rating: 0, comment: '' })
+      api.get('/reviews/my').then(({data})=>setMyReviews(data.reviews||[])).catch(()=>{})
+    } catch { toast.error('Erreur lors de l\'envoi') }
+    finally { setSubmitting(false) }
+  }
 
   const handleSave = async () => {
     try {
@@ -162,12 +183,66 @@ export default function ProfilePage() {
 
             {/* Reviews tab */}
             {tab === 'reviews' && (
-              <div className="profile-card">
-                <h2 className="font-display" style={{ fontSize:'clamp(17px,4vw,20px)', fontWeight:600, marginBottom:24 }}>Mes avis</h2>
-                <div style={{ textAlign:'center', padding:'60px 16px' }}>
-                  <div style={{ fontSize:48, marginBottom:16 }}>⭐</div>
-                  <p style={{ color:'#8B6B3D', fontSize:14 }}>Vous n'avez pas encore posté d'avis.</p>
+              <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+                {/* Formulaire nouvel avis */}
+                <div className="profile-card">
+                  <h2 className="font-display" style={{ fontSize:'clamp(17px,4vw,20px)', fontWeight:600, marginBottom:20 }}>Laisser un avis</h2>
+                  <div style={{ marginBottom:16 }}>
+                    <label style={{ display:'block', fontSize:11, fontWeight:700, color:'#5C3D11', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:10 }}>Note</label>
+                    <div style={{ display:'flex', gap:6 }}>
+                      {[1,2,3,4,5].map(n => (
+                        <button key={n}
+                          onClick={() => setReviewForm(f => ({...f, rating: n}))}
+                          onMouseEnter={() => setHoverStar(n)}
+                          onMouseLeave={() => setHoverStar(0)}
+                          style={{ background:'none', border:'none', cursor:'pointer', fontSize:30, padding:'0 2px', lineHeight:1, color: n <= (hoverStar || reviewForm.rating) ? '#F59E0B' : '#D4B896', transition:'color 0.15s' }}>
+                          ★
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ marginBottom:16 }}>
+                    <label style={{ display:'block', fontSize:11, fontWeight:700, color:'#5C3D11', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>Commentaire</label>
+                    <textarea
+                      value={reviewForm.comment}
+                      onChange={e => setReviewForm(f => ({...f, comment: e.target.value}))}
+                      rows={4}
+                      placeholder="Partagez votre expérience avec Wênam..."
+                      style={{ width:'100%', padding:'10px 12px', border:'1px solid #D4B896', borderRadius:10, fontSize:13, resize:'vertical', boxSizing:'border-box', outline:'none', fontFamily:'Lato,sans-serif', lineHeight:1.6 }}
+                    />
+                  </div>
+                  <button onClick={submitReview} disabled={submitting}
+                    style={{ background: submitting ? '#D4B896' : '#C4531A', color:'#fff', border:'none', borderRadius:10, padding:'11px 24px', fontSize:13, fontWeight:700, cursor: submitting ? 'not-allowed' : 'pointer' }}>
+                    {submitting ? 'Envoi...' : 'Envoyer mon avis'}
+                  </button>
                 </div>
+
+                {/* Avis déjà soumis */}
+                {myReviews.length > 0 && (
+                  <div className="profile-card">
+                    <h3 className="font-display" style={{ fontSize:16, fontWeight:600, marginBottom:16, color:'#1A0F00' }}>Mes avis précédents</h3>
+                    <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                      {myReviews.map(r => (
+                        <div key={r._id} style={{ background:'#FAF3E8', borderRadius:12, padding:'12px 14px', border:'1px solid #EDE0C4' }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6, flexWrap:'wrap' }}>
+                            <span style={{ color:'#F59E0B', fontSize:16 }}>{'★'.repeat(r.rating)}{'☆'.repeat(5-r.rating)}</span>
+                            <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:12, background: r.isApproved ? '#F0FDF4' : '#FEFCE8', color: r.isApproved ? '#166534' : '#B7791F' }}>
+                              {r.isApproved ? 'Publié' : 'En attente de validation'}
+                            </span>
+                            <span style={{ fontSize:11, color:'#8B6B3D', marginLeft:'auto' }}>{new Date(r.createdAt).toLocaleDateString('fr-FR')}</span>
+                          </div>
+                          <p style={{ fontSize:13, color:'#5C3D11', margin:0, lineHeight:1.5 }}>{r.comment}</p>
+                          {r.adminResponse && (
+                            <div style={{ marginTop:8, paddingTop:8, borderTop:'1px solid #D4B896' }}>
+                              <p style={{ fontSize:11, fontWeight:700, color:'#C4531A', margin:'0 0 3px' }}>Réponse Wênam :</p>
+                              <p style={{ fontSize:12, color:'#5C3D11', fontStyle:'italic', margin:0 }}>{r.adminResponse}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

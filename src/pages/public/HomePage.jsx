@@ -36,7 +36,7 @@ const css = `
   .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
   .hero-h1 { font-size: 52px; }
   .promo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-  .hero-video-wrap { width: 100%; max-width: 340px; border-radius: 20px; overflow: hidden; border: 4px solid #EDE0C4; box-shadow: 0 8px 32px rgba(139,58,15,0.15); aspect-ratio: 9/16; }
+  .hero-video-wrap { width: 100%; max-width: 340px; border-radius: 20px; overflow: hidden; border: 4px solid #EDE0C4; box-shadow: 0 8px 32px rgba(139,58,15,0.15); aspect-ratio: 9/16; position: relative; }
   @media (max-width: 768px) {
     .hero-grid { grid-template-columns: 1fr; gap: 28px; }
     .hero-h1 { font-size: clamp(28px, 7vw, 42px); }
@@ -127,7 +127,8 @@ export default function HomePage() {
                   muted
                   loop
                   playsInline
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  preload="auto"
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
             </motion.div>
@@ -208,7 +209,7 @@ export default function HomePage() {
                   </div>
                   <div style={{ padding: 16 }}>
                     <h3 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 600, fontSize: 16, color: '#1A0F00', margin: '0 0 6px' }}>{item.name}</h3>
-                    <p style={{ fontSize: 13, color: '#8B6B3D', margin: '0 0 12px', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{item.description}</p>
+                    <p style={{ fontSize: 13, color: '#8B6B3D', margin: '0 0 12px', lineHeight: 1.5 }}>{item.description}</p>
                     <div style={{ display: 'flex', gap: 12, fontSize: 12, color: '#8B6B3D', marginBottom: 14 }}>
                       <span>⭐ {item.rating}</span>
                       <span>⏱ {item.preparationTime} min</span>
